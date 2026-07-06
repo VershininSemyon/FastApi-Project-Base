@@ -2,12 +2,13 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
+from api.routers.auth import auth_router
 from api.routers.healthcheck import healthcheck_router
 from api.routers.user import user_router
 from config.settings import settings
 from db.database import engine
 from exceptions.base import AppError
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
 
@@ -20,13 +21,14 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(healthcheck_router)
 app.include_router(user_router)
+app.include_router(auth_router)
 
 
 @app.exception_handler(AppError)
-async def exception_handler(request: Request, exc: AppError):
+async def app_exception_handler(request: Request, exc: AppError):
     return JSONResponse(
-        status_code=400,
-        content={"detail": str(exc)},
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
     )
 
 

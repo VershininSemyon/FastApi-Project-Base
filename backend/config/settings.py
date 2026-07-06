@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     POSTGRES_HOST: str = 'postgres'
     POSTGRES_PORT: int = 5432
 
+    JWT_ALGORITHM: str = 'HS256'
+    JWT_SIGNING_KEY: str
+    ACCESS_TOKEN_LIFETIME_MINUTES: int = 15
+    REFRESH_TOKEN_LIFETIME_DAYS: int = 2
 
     @property
     def database_url(self) -> str:

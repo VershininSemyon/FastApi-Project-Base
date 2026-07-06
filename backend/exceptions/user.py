@@ -3,16 +3,15 @@ from exceptions.base import AppError
 
 
 class UserError(AppError):
-    pass
+    status_code: int = 400
+    detail: str = "Ошибка пользователя"
 
 
-class UserCreationError(UserError):
-    pass
+class UsernameAlreadyExistsError(UserError):
+    status_code: int = 400
+    detail: str = "Пользователь с таким username уже существует"
 
 
-class UsernameAlreadyExistsError(UserCreationError):
-    pass
-
-
-class EmailAlreadyExistsError(UserCreationError):
-    pass
+class EmailAlreadyExistsError(UserError):
+    status_code: int = 400
+    detail: str = "Пользователь с таким email уже существует"
