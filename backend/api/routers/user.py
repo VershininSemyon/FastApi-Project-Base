@@ -1,7 +1,7 @@
 
-from api.dependencies import UserServiceDep, CurrentUserDep
-from fastapi import APIRouter, status
-from schemas.user import UserCreateSchema, UserReadSchema
+from api.dependencies import CurrentUserDep, UserServiceDep
+from fastapi import APIRouter, Response, status
+from schemas.user import UserCreateSchema, UserReadSchema, UserUpdateSchema
 
 user_router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -13,7 +13,7 @@ user_router = APIRouter(prefix="/users", tags=["Users"])
 async def register_user(
     user_data: UserCreateSchema,
     user_service: UserServiceDep
-):
+) -> UserReadSchema:
     new_user = await user_service.create_user(user_data)
     return new_user
 
@@ -27,3 +27,17 @@ async def get_me(
     current_user: CurrentUserDep,
 ) -> UserReadSchema:
     return current_user
+
+
+@user_router.delete(
+    "/me",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_me(
+    current_user: CurrentUserDep,
+    user_service: UserServiceDep,
+    response: Response
+):
+    await user_service.delete_user(current_user.id)
+    response.delete_cookie(key="access_token")
+    response.delete_cookie(key="refresh_token")

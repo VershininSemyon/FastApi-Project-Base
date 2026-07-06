@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 UserUsername = Annotated[str, Field(max_length=100)]
 
@@ -30,6 +30,6 @@ class UserCreateSchema(BaseModel):
         return value
 
 
-class UserSchemaUpdate(BaseModel):
+class UserUpdateSchema(BaseModel):
     username: UserUsername
     email: EmailStr

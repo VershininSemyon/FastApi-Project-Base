@@ -1,10 +1,12 @@
 
 from db.unitofwork import UnitOfWork
-from exceptions.auth import InvalidPasswordError, UserNotFoundError, InvalidTokenTypeError
+from exceptions.auth import (InvalidPasswordError, InvalidTokenTypeError,
+                             UserNotFoundError)
 from exceptions.user import EmailAlreadyExistsError, UsernameAlreadyExistsError
-from integrations.jwt_auth import create_access_token, create_refresh_token, decode_token
+from integrations.jwt_auth import (create_access_token, create_refresh_token,
+                                   decode_token)
 from schemas.auth import JWTTokenPairResponseSchema, UserLoginSchema
-from schemas.user import UserCreateSchema, UserReadSchema
+from schemas.user import UserCreateSchema, UserReadSchema, UserUpdateSchema
 
 
 class UserService:
@@ -65,3 +67,7 @@ class UserService:
         async with self.uow:
             user = await self.uow.user_repository.get_by_username(data['username'])
             return UserReadSchema.model_validate(user)
+
+    async def delete_user(self, user_id: str) -> None:
+        async with self.uow:
+            await self.uow.user_repository.delete(user_id)
