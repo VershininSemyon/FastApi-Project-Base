@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_LIFETIME_MINUTES: int = 15
     REFRESH_TOKEN_LIFETIME_DAYS: int = 2
 
+    PASSWORD_SALT: str
+
     REDIS_PASSWORD: str
     REDIS_PORT: int = 6379
 

@@ -3,8 +3,9 @@ from db.unitofwork import UnitOfWork
 from exceptions.auth import (InvalidPasswordError, InvalidTokenTypeError,
                              UserNotFoundError)
 from exceptions.user import EmailAlreadyExistsError, UsernameAlreadyExistsError
-from integrations.jwt_auth import (create_access_token, create_refresh_token,
-                                   decode_token)
+from integrations.hashing import hash_password, verify_password
+from integrations.jwt import (create_access_token, create_refresh_token,
+                              decode_token)
 from schemas.auth import JWTTokenPairResponseSchema, UserLoginSchema
 from schemas.user import UserCreateSchema, UserReadSchema, UserUpdateSchema
 
@@ -23,7 +24,10 @@ class UserService:
             if user is not None:
                 raise EmailAlreadyExistsError()
             
-            created_user = await self.uow.user_repository.create(data.model_dump())
+            user_dict = data.model_dump()
+            user_dict['password'] = hash_password(user_dict['password'])
+
+            created_user = await self.uow.user_repository.create(user_dict)
             await self.uow.commit()
         
         return UserReadSchema.model_validate(created_user)
@@ -35,9 +39,9 @@ class UserService:
         if not user:
             raise UserNotFoundError()
         
-        if user.password != login_data.password:
+        if not verify_password(login_data.password, user.password):
             raise InvalidPasswordError()
-        
+
         user_data = {
             "id": str(user.id),
             "username": user.username,
