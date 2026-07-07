@@ -41,3 +41,16 @@ async def delete_me(
     await user_service.delete_user(current_user.id)
     response.delete_cookie(key="access_token")
     response.delete_cookie(key="refresh_token")
+
+
+@user_router.put(
+    "/me",
+    response_model=UserReadSchema,
+    status_code=status.HTTP_200_OK
+)
+async def change_me(
+    user_data: UserUpdateSchema,
+    current_user: CurrentUserDep,
+    user_service: UserServiceDep,
+) -> UserReadSchema:
+    return await user_service.change_user(current_user, user_data)

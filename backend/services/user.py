@@ -39,6 +39,7 @@ class UserService:
             raise InvalidPasswordError()
         
         user_data = {
+            "id": str(user.id),
             "username": user.username,
             "email": user.email
         }
@@ -51,6 +52,7 @@ class UserService:
     def refresh_token(self, refresh_token: str) -> str:
         data = decode_token(refresh_token)
         user_data = {
+            "id": data['id'],
             "username": data['username'],
             "email": data['email']
         }
@@ -58,16 +60,33 @@ class UserService:
         access = create_access_token(user_data)
         return access
 
-    async def authenticate_user(self, access_token: str):
+    async def authenticate_user(self, access_token: str) -> UserReadSchema:
         data = decode_token(access_token)
 
         if data['token_type'] != 'access':
             raise InvalidTokenTypeError()
 
         async with self.uow:
-            user = await self.uow.user_repository.get_by_username(data['username'])
+            user = await self.uow.user_repository.get_by_id(data['id'])
             return UserReadSchema.model_validate(user)
 
     async def delete_user(self, user_id: str) -> None:
         async with self.uow:
             await self.uow.user_repository.delete(user_id)
+
+    async def change_user(self, current_user: UserReadSchema, data: UserUpdateSchema) -> UserReadSchema:
+        async with self.uow:
+            if current_user.username != data.username:
+                user = await self.uow.user_repository.get_by_username(data.username)
+                if user is not None:
+                    raise UsernameAlreadyExistsError()
+            
+            if current_user.email != data.email:
+                user = await self.uow.user_repository.get_by_email(data.email)
+                if user is not None:
+                    raise EmailAlreadyExistsError()
+
+            updated_user = await self.uow.user_repository.update(current_user.id, data.model_dump())
+            await self.uow.commit()
+
+        return UserReadSchema.model_validate(updated_user)

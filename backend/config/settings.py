@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: str
     REDIS_PORT: int = 6379
 
-    RATE_LIMIT_REQUESTS_LIMIT: int = 10
+    RATE_LIMIT_REQUESTS_LIMIT: int = 25
     RATE_LIMIT_WINDOW_SECONDS: int = 60
 
     @property
