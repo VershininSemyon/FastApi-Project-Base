@@ -2,13 +2,14 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
+from api.middleware import RateLimitMiddleware
 from api.routers.auth import auth_router
 from api.routers.healthcheck import healthcheck_router
 from api.routers.user import user_router
 from config.settings import settings
 from db.database import engine
 from exceptions.base import AppError
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 
@@ -19,6 +20,13 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    RateLimitMiddleware, 
+    requests_limit=settings.RATE_LIMIT_REQUESTS_LIMIT, 
+    window_seconds=settings.RATE_LIMIT_WINDOW_SECONDS
+)
+
 app.include_router(healthcheck_router)
 app.include_router(user_router)
 app.include_router(auth_router)
