@@ -93,6 +93,34 @@ services:
     depends_on:
       - redis
 
+  celery:
+    build:
+      context: ./backend
+    container_name: celery_worker
+    command: celery -A background.celery_app:celery_app worker --loglevel=info
+    env_file:
+      - .env
+    networks:
+      - app_net
+    depends_on:
+      - backend
+      - redis
+
+  flower:
+    build:
+      context: ./backend
+    container_name: celery_flower
+    command: celery -A background.celery_app:celery_app flower --basic_auth=${FLOWER_USER}:${FLOWER_PASSWORD}
+    ports:
+      - "5555:5555"
+    env_file:
+      - .env
+    networks:
+      - app_net
+    depends_on:
+      - celery
+      - redis
+
 
 volumes:
   postgres-data:
