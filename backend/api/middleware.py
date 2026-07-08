@@ -1,15 +1,16 @@
 
 import json
 
-from cache.redis_cache_backend import RedisCacheBackend, get_redis_client
 from fastapi import Request, Response, status
 from starlette.middleware.base import BaseHTTPMiddleware
+
+from cache.redis_cache_backend import RedisCacheBackend, get_redis_client
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
     def __init__(
-        self, 
-        app, 
+        self,
+        app,
         requests_limit: int,
         window_seconds: int
     ):

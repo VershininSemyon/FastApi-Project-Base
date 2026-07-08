@@ -40,7 +40,7 @@ class Settings(BaseSettings):
     @property
     def redis_url(self) -> str:
         return f"redis://:{self.REDIS_PASSWORD}@redis:{self.REDIS_PORT}/0"
-    
+
     @property
     def celery_result_backend(self) -> str:
         return f"redis://:{self.REDIS_PASSWORD}@redis:{self.REDIS_PORT}/1"

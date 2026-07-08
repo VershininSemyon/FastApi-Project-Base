@@ -1,5 +1,6 @@
 
 import bcrypt
+
 from config.settings import settings
 
 

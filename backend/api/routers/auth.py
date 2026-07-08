@@ -1,13 +1,14 @@
 
-from api.dependencies import UserServiceDep
 from fastapi import APIRouter, Cookie, HTTPException, Response, status
+
+from api.dependencies import UserServiceDep
 from schemas.auth import JWTTokenPairResponseSchema, UserLoginSchema
 
 auth_router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @auth_router.post(
-    "/token", 
+    "/token",
     response_model=JWTTokenPairResponseSchema,
     status_code=status.HTTP_200_OK,
 )
@@ -17,26 +18,26 @@ async def authenticate(
     response: Response
 ):
     token_data = await user_service.get_tokens(login_data)
-    
+
     response.set_cookie(
         key="access_token",
         value=token_data.access,
         httponly=True,
         samesite="lax"
     )
-    
+
     response.set_cookie(
         key="refresh_token",
         value=token_data.refresh,
         httponly=True,
         samesite="lax",
     )
-        
+
     return token_data
 
 
 @auth_router.post(
-    "/token/refresh", 
+    "/token/refresh",
     status_code=status.HTTP_200_OK,
 )
 def refresh_token(
@@ -46,7 +47,7 @@ def refresh_token(
 ):
     if not refresh_token:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, 
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Нет refresh токена"
         )
 

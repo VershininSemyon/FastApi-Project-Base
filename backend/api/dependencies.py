@@ -1,10 +1,11 @@
 
 from typing import Annotated
 
+from fastapi import Cookie, Depends, HTTPException, status
+
 from cache.redis_cache_backend import RedisCacheBackend, get_redis_client
 from db.database import async_session_factory
 from db.unitofwork import UnitOfWork
-from fastapi import Cookie, Depends, HTTPException, status
 from schemas.user import UserReadSchema
 from services.user import UserService
 
@@ -35,7 +36,7 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Не предоставлен access токен",
         )
-    
+
     user = await user_service.authenticate_user(access_token)
     return user
 

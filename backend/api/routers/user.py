@@ -1,13 +1,14 @@
 
-from api.dependencies import CurrentUserDep, UserServiceDep
 from fastapi import APIRouter, Response, status
+
+from api.dependencies import CurrentUserDep, UserServiceDep
 from schemas.user import UserCreateSchema, UserReadSchema, UserUpdateSchema
 
 user_router = APIRouter(prefix="/users", tags=["Users"])
 
 @user_router.post(
-    "/", 
-    response_model=UserReadSchema, 
+    "/",
+    response_model=UserReadSchema,
     status_code=status.HTTP_201_CREATED
 )
 async def register_user(

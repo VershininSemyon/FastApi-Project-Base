@@ -2,9 +2,10 @@
 import uuid
 from datetime import datetime
 
-from db.database import Base
 from sqlalchemy import DateTime, String, Text, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
+
+from db.database import Base
 
 
 class UserORM(Base):

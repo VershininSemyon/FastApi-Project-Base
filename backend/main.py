@@ -2,6 +2,11 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from prometheus_fastapi_instrumentator import Instrumentator
+
 from api.middleware import RateLimitMiddleware
 from api.routers.auth import auth_router
 from api.routers.healthcheck import healthcheck_router
@@ -9,10 +14,6 @@ from api.routers.user import user_router
 from config.settings import settings
 from db.database import engine
 from exceptions.base import AppError
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from prometheus_fastapi_instrumentator import Instrumentator
 
 
 @asynccontextmanager
@@ -33,8 +34,8 @@ if settings.CORS_ORIGINS:
     )
 
 app.add_middleware(
-    RateLimitMiddleware, 
-    requests_limit=settings.RATE_LIMIT_REQUESTS_LIMIT, 
+    RateLimitMiddleware,
+    requests_limit=settings.RATE_LIMIT_REQUESTS_LIMIT,
     window_seconds=settings.RATE_LIMIT_WINDOW_SECONDS
 )
 

@@ -2,6 +2,7 @@
 from datetime import datetime, timedelta, timezone
 
 import jwt
+
 from config.settings import settings
 from exceptions.auth import InvalidTokenError, TokenExpiredError
 

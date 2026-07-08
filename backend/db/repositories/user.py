@@ -1,8 +1,9 @@
 
-from db.repositories.base import BaseRepository
-from models.user import UserORM
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from db.repositories.base import BaseRepository
+from models.user import UserORM
 
 
 class UserRepository(BaseRepository[UserORM]):
@@ -13,7 +14,7 @@ class UserRepository(BaseRepository[UserORM]):
         stmt = select(self.model).where(self.model.username == username)
         result = await self.session.execute(stmt)
         return result.scalars().first()
-    
+
     async def get_by_email(self, email: str) -> UserORM:
         stmt = select(self.model).where(self.model.email == email)
         result = await self.session.execute(stmt)

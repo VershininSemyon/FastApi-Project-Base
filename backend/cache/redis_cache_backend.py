@@ -1,8 +1,9 @@
 
 from typing import Any
 
-from config.settings import settings
 from redis import asyncio
+
+from config.settings import settings
 
 
 def get_redis_client() -> asyncio.Redis:
@@ -24,6 +25,6 @@ class RedisCacheBackend:
 
     async def get_value(self, key: str) -> Any:
         return await self.client.get(key)
-    
+
     async def ttl(self, key: str) -> int:
         return await self.client.ttl(key)
