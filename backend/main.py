@@ -10,7 +10,9 @@ from config.settings import settings
 from db.database import engine
 from exceptions.base import AppError
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from prometheus_fastapi_instrumentator import Instrumentator
 
 
 @asynccontextmanager
@@ -21,6 +23,15 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+if settings.CORS_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.CORS_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
 app.add_middleware(
     RateLimitMiddleware, 
     requests_limit=settings.RATE_LIMIT_REQUESTS_LIMIT, 
@@ -30,6 +41,9 @@ app.add_middleware(
 app.include_router(healthcheck_router)
 app.include_router(user_router)
 app.include_router(auth_router)
+
+
+Instrumentator().instrument(app).expose(app)
 
 
 @app.exception_handler(AppError)
