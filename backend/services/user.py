@@ -1,14 +1,7 @@
 
 from db.unitofwork import UnitOfWork
-from exceptions.auth import (
-    InvalidPasswordError,
-    InvalidTokenTypeError,
-    UserNotFoundError,
-)
 from exceptions.user import EmailAlreadyExistsError, UsernameAlreadyExistsError
-from integrations.hashing import hash_password, verify_password
-from integrations.jwt import create_access_token, create_refresh_token, decode_token
-from schemas.auth import JWTTokenPairResponseSchema, UserLoginSchema
+from integrations.hashing import hash_password
 from schemas.user import UserCreateSchema, UserReadSchema, UserUpdateSchema
 
 
@@ -33,48 +26,6 @@ class UserService:
             await self.uow.commit()
 
         return UserReadSchema.model_validate(created_user)
-
-    async def get_tokens(self, login_data: UserLoginSchema) -> JWTTokenPairResponseSchema:
-        async with self.uow:
-            user = await self.uow.user_repository.get_by_username(login_data.username)
-
-        if not user:
-            raise UserNotFoundError()
-
-        if not verify_password(login_data.password, user.password):
-            raise InvalidPasswordError()
-
-        user_data = {
-            "id": str(user.id),
-            "username": user.username,
-            "email": user.email
-        }
-
-        return JWTTokenPairResponseSchema.model_validate({
-            "access": create_access_token(user_data),
-            "refresh": create_refresh_token(user_data)
-        })
-
-    def refresh_token(self, refresh_token: str) -> str:
-        data = decode_token(refresh_token)
-        user_data = {
-            "id": data['id'],
-            "username": data['username'],
-            "email": data['email']
-        }
-
-        access = create_access_token(user_data)
-        return access
-
-    async def authenticate_user(self, access_token: str) -> UserReadSchema:
-        data = decode_token(access_token)
-
-        if data['token_type'] != 'access':
-            raise InvalidTokenTypeError()
-
-        async with self.uow:
-            user = await self.uow.user_repository.get_by_id(data['id'])
-            return UserReadSchema.model_validate(user)
 
     async def delete_user(self, user_id: str) -> None:
         async with self.uow:

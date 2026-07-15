@@ -1,7 +1,7 @@
 
 from fastapi import APIRouter, Cookie, HTTPException, Response, status
 
-from api.dependencies import UserServiceDep
+from api.dependencies import AuthServiceDep
 from schemas.auth import JWTTokenPairResponseSchema, UserLoginSchema
 
 auth_router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -14,10 +14,10 @@ auth_router = APIRouter(prefix="/auth", tags=["Auth"])
 )
 async def authenticate(
     login_data: UserLoginSchema,
-    user_service: UserServiceDep,
+    auth_service: AuthServiceDep,
     response: Response
 ):
-    token_data = await user_service.get_tokens(login_data)
+    token_data = await auth_service.get_tokens(login_data)
 
     response.set_cookie(
         key="access_token",
@@ -41,7 +41,7 @@ async def authenticate(
     status_code=status.HTTP_200_OK,
 )
 def refresh_token(
-    user_service: UserServiceDep,
+    auth_service: AuthServiceDep,
     response: Response,
     refresh_token: str | None = Cookie(default=None),
 ):
@@ -51,7 +51,7 @@ def refresh_token(
             detail="Нет refresh токена"
         )
 
-    access_token = user_service.refresh_token(refresh_token)
+    access_token = auth_service.refresh_token(refresh_token)
     response.set_cookie(
         key="access_token",
         value=access_token,
