@@ -30,6 +30,7 @@ class UserService:
     async def delete_user(self, user_id: str) -> None:
         async with self.uow:
             await self.uow.user_repository.delete(user_id)
+            await self.uow.commit()
 
     async def change_user(self, current_user: UserReadSchema, data: UserUpdateSchema) -> UserReadSchema:
         async with self.uow:

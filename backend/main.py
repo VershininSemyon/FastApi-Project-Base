@@ -24,6 +24,19 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+app.add_middleware(
+    RateLimitMiddleware,
+    requests_limit=settings.RATE_LIMIT_REQUESTS_LIMIT,
+    window_seconds=settings.RATE_LIMIT_WINDOW_SECONDS,
+    excluded_routes=[
+        "/openapi.json",
+        "/docs",
+        "/redoc",
+        "/metrics",
+        "/healthcheck"
+    ]
+)
+
 if settings.CORS_ORIGINS:
     app.add_middleware(
         CORSMiddleware,
@@ -32,12 +45,6 @@ if settings.CORS_ORIGINS:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
-app.add_middleware(
-    RateLimitMiddleware,
-    requests_limit=settings.RATE_LIMIT_REQUESTS_LIMIT,
-    window_seconds=settings.RATE_LIMIT_WINDOW_SECONDS
-)
 
 app.include_router(healthcheck_router)
 app.include_router(user_router)

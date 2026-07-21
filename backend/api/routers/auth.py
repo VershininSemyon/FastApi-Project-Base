@@ -62,3 +62,16 @@ def refresh_token(
     return {
         "access": access_token
     }
+
+
+@auth_router.post(
+    "/logout",
+    status_code=status.HTTP_200_OK
+)
+def logout(response: Response):
+    response.delete_cookie(key="access_token")
+    response.delete_cookie(key="refresh_token")
+
+    return {
+        "success": True
+    }

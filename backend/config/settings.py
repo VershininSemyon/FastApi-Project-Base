@@ -44,8 +44,12 @@ class RedisSettings(BaseModel):
         return f"redis://:{self.REDIS_PASSWORD}@redis:{self.REDIS_PORT}/0"
 
     @property
-    def celery_result_backend(self) -> str:
+    def taskiq_result_backend(self) -> str:
         return f"redis://:{self.REDIS_PASSWORD}@redis:{self.REDIS_PORT}/1"
+
+
+class TaskIQSettings(BaseModel):
+    TASKIQ_DASHBOARD_API_TOKEN: str
 
 
 class RateLimitSettings(BaseModel):
@@ -60,6 +64,7 @@ class Settings(
     JwtSettings,
     PasswordSettings,
     RedisSettings,
+    TaskIQSettings,
     RateLimitSettings,
     BaseSettings
 ):

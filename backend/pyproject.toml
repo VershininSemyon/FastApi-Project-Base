@@ -7,9 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.18.5",
     "asyncpg>=0.31.0",
-    "celery>=5.6.3",
     "fastapi>=0.138.2",
-    "flower>=2.0.1",
     "greenlet>=3.5.3",
     "pydantic[email]>=2.13.4",
     "pydantic-settings>=2.14.2",
@@ -21,11 +19,14 @@ dependencies = [
     "prometheus-fastapi-instrumentator>=8.0.2",
     "ruff>=0.15.20",
     "mypy>=2.2.0",
+    "taskiq>=0.12.4",
+    "taskiq-dashboard>=0.4.4",
+    "taskiq-redis>=1.2.3",
 ]
 
 [tool.ruff]
 line-length = 120
-exclude = [".venv", "venv", ".env", "env", "alembic", "migrations"]
+exclude = [".venv", "venv", ".env", "env", "alembic", "migrations", "background/broker.py"]
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I"]

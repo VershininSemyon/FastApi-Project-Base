@@ -1,5 +1,4 @@
 
-
 services:
   backend:
     build:
@@ -93,34 +92,44 @@ services:
     depends_on:
       - redis
 
-  celery:
+  taskiq_worker:
     build:
       context: ./backend
-    container_name: celery_worker
-    command: celery -A background.celery_app:celery_app worker --loglevel=info
+    container_name: taskiq_worker
+    command: taskiq worker background.broker:broker --workers 2
     env_file:
       - .env
+    environment:
+      - PYTHONPATH=/app
     networks:
       - app_net
     depends_on:
-      - backend
-      - redis
-
-  flower:
-    build:
-      context: ./backend
-    container_name: celery_flower
-    command: celery -A background.celery_app:celery_app flower --basic_auth=${FLOWER_USER}:${FLOWER_PASSWORD}
-    ports:
-      - "5555:5555"
-    env_file:
-      - .env
-    networks:
-      - app_net
-    depends_on:
-      - celery
-      - redis
+      backend:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    restart: on-failure
   
+  taskiq_dashboard:
+    image: ghcr.io/danfimov/taskiq-dashboard:v0.4.4
+    container_name: taskiq_dashboard
+    restart: always
+    environment:
+      - TASKIQ_DASHBOARD__STORAGE_TYPE=sqlite
+      - TASKIQ_DASHBOARD__SQLITE__DSN=sqlite+aiosqlite:///taskiq_dashboard.db
+      - TASKIQ_DASHBOARD__API__TOKEN=${TASKIQ_DASHBOARD_API_TOKEN}
+      - TASKIQ_DASHBOARD__API__ADDRESS=0.0.0.0
+      - TASKIQ_DASHBOARD__API__PORT=8000
+    ports:
+      - "8020:8000"
+    networks:
+      - app_net
+    volumes:
+      - taskiq-dashboard-data:/app
+    depends_on:
+      redis:
+        condition: service_healthy
+
   prometheus:
     image: prom/prometheus:v2.52.0
     container_name: prometheus
@@ -162,6 +171,7 @@ services:
 volumes:
   postgres-data:
   redis-data:
+  taskiq-dashboard-data:
   prometheus-data:
   grafana-data:
 
